@@ -32,20 +32,20 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: cmd/${{ matrix.image }}/Dockerfile
           push: true
-          tags: zhenghaoz/${{ matrix.image }}:nightly
+          tags: codingending/${{ matrix.image }}:nightly
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Resolve Images on Description
         run: |
-          sed -i -E "s/src=\"assets\//src=\"https:\/\/github.com\/gorse-io\/gorse\/raw\/master\/assets\//" README.md
+          sed -i -E "s/src=\"assets\//src=\"https:\/\/github.com\/codingending\/gorse\/raw\/master\/assets\//" README.md
           
       - name: Update DockerHub Description
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: zhenghaoz/${{ matrix.image }}
+          repository: codingending/${{ matrix.image }}
 
   windows_images:
     name: windows images
@@ -61,8 +61,8 @@ jobs:
         run: |
           docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_TOKEN
           docker build -f cmd/${{ matrix.image }}/Dockerfile.windows `
-            -t zhenghaoz/${{ matrix.image }}:nightly-windowsservercore .
-          docker image push --all-tags zhenghaoz/${{ matrix.image }}
+            -t codingending/${{ matrix.image }}:nightly-windowsservercore .
+          docker image push --all-tags codingending/${{ matrix.image }}
           docker logout
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -110,17 +110,17 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: cmd/${{ matrix.image }}/Dockerfile.cuda
           push: true
-          tags: zhenghaoz/${{ matrix.image }}:nightly-cuda12.8
+          tags: codingending/${{ matrix.image }}:nightly-cuda12.8
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Resolve Images on Description
         run: |
-          sed -i -E "s/src=\"assets\//src=\"https:\/\/github.com\/gorse-io\/gorse\/raw\/${{ env.DEFAULT_BRANCH }}\/assets\//" README.md
+          sed -i -E "s/src=\"assets\//src=\"https:\/\/github.com\/codingending\/gorse\/raw\/${{ env.DEFAULT_BRANCH }}\/assets\//" README.md
           
       - name: Update DockerHub Description
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: zhenghaoz/${{ matrix.image }}
+          repository: codingending/${{ matrix.image }}

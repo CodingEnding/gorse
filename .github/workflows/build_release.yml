@@ -21,9 +21,9 @@ jobs:
         run: >
           gox -output="{{.OS}}/{{.Arch}}/{{.Dir}}" \
             -osarch='windows/arm64 windows/amd64 linux/arm64 linux/amd64' -ldflags="
-            -X 'github.com/zhenghaoz/gorse/cmd/version.Version=$(git describe --tags $(git rev-parse HEAD))'
-            -X 'github.com/zhenghaoz/gorse/cmd/version.GitCommit=$(git rev-parse HEAD)'
-            -X 'github.com/zhenghaoz/gorse/cmd/version.BuildTime=$(date)'" ./...
+            -X 'github.com/codingending/gorse/cmd/version.Version=$(git describe --tags $(git rev-parse HEAD))'
+            -X 'github.com/codingending/gorse/cmd/version.GitCommit=$(git rev-parse HEAD)'
+            -X 'github.com/codingending/gorse/cmd/version.BuildTime=$(date)'" ./...
         env:
           CGO_ENABLED: 0
 
@@ -62,9 +62,9 @@ jobs:
         run: >
           gox -output="{{.OS}}/{{.Arch}}/{{.Dir}}" \
             -osarch='darwin/arm64' -ldflags="
-            -X 'github.com/zhenghaoz/gorse/cmd/version.Version=$(git describe --tags $(git rev-parse HEAD))'
-            -X 'github.com/zhenghaoz/gorse/cmd/version.GitCommit=$(git rev-parse HEAD)'
-            -X 'github.com/zhenghaoz/gorse/cmd/version.BuildTime=$(date)'" ./...
+            -X 'github.com/codingending/gorse/cmd/version.Version=$(git describe --tags $(git rev-parse HEAD))'
+            -X 'github.com/codingending/gorse/cmd/version.GitCommit=$(git rev-parse HEAD)'
+            -X 'github.com/codingending/gorse/cmd/version.BuildTime=$(date)'" ./...
 
       - name: Install zip
         run: brew install zip
@@ -112,9 +112,9 @@ jobs:
           file: cmd/${{ matrix.image }}/Dockerfile
           push: true
           tags: |
-            zhenghaoz/${{ matrix.image }}:latest
-            zhenghaoz/${{ matrix.image }}:${{ steps.get_version.outputs.major }}.${{ steps.get_version.outputs.minor }}
-            zhenghaoz/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}
+            codingending/${{ matrix.image }}:latest
+            codingending/${{ matrix.image }}:${{ steps.get_version.outputs.major }}.${{ steps.get_version.outputs.minor }}
+            codingending/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}
 
       - name: Build prerelease docker image
         if: github.event.release.prerelease == true
@@ -125,7 +125,7 @@ jobs:
           file: cmd/${{ matrix.image }}/Dockerfile
           push: true
           tags: |
-            zhenghaoz/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}
+            codingending/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}
 
   build-windows-images:
     name: build windows images
@@ -145,10 +145,10 @@ jobs:
         run: |
           docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_TOKEN
           docker build -f cmd/${{ matrix.image }}/Dockerfile.windows `
-            -t zhenghaoz/${{ matrix.image }}:windowsservercore `
-            -t zhenghaoz/${{ matrix.image }}:${{ steps.get_version.outputs.major }}.${{ steps.get_version.outputs.minor }}-windowsservercore `
-            -t zhenghaoz/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}-windowsservercore .
-          docker image push --all-tags zhenghaoz/${{ matrix.image }}
+            -t codingending/${{ matrix.image }}:windowsservercore `
+            -t codingending/${{ matrix.image }}:${{ steps.get_version.outputs.major }}.${{ steps.get_version.outputs.minor }}-windowsservercore `
+            -t codingending/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}-windowsservercore .
+          docker image push --all-tags codingending/${{ matrix.image }}
           docker logout
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -159,8 +159,8 @@ jobs:
         run: |
           docker login -u $env:DOCKERHUB_USERNAME -p $env:DOCKERHUB_TOKEN
           docker build -f cmd/${{ matrix.image }}/Dockerfile.windows `
-            -t zhenghaoz/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}-windowsservercore .
-          docker image push --all-tags zhenghaoz/${{ matrix.image }}
+            -t codingending/${{ matrix.image }}:${{ steps.get_version.outputs.version-without-v }}-windowsservercore .
+          docker image push --all-tags codingending/${{ matrix.image }}
           docker logout
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
