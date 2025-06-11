@@ -118,9 +118,9 @@ jobs:
         run: |
           sed -i -E "s/src=\"assets\//src=\"https:\/\/github.com\/codingending\/gorse\/raw\/${{ env.DEFAULT_BRANCH }}\/assets\//" README.md
           
-      - name: Update DockerHub Description
-        uses: peter-evans/dockerhub-description@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: codingending/${{ matrix.image }}
+      # - name: Update DockerHub Description
+      #   uses: peter-evans/dockerhub-description@v3
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #     repository: codingending/${{ matrix.image }}
