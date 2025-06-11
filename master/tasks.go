@@ -216,9 +216,12 @@ func (m *Master) runLoadDatasetTask() error {
 	if err = m.trainCollaborativeFiltering(m.rankingTrainSet, m.rankingTestSet); err != nil {
 		log.Logger().Error("failed to train collaborative filtering model", zap.Error(err))
 	}
-	if err = m.trainClickThroughRatePrediction(m.clickTrainSet, m.clickTestSet); err != nil {
-		log.Logger().Error("failed to train click-through rate prediction model", zap.Error(err))
-	}
+	// if err = m.trainClickThroughRatePrediction(m.clickTrainSet, m.clickTestSet); err != nil {
+	// 	log.Logger().Error("failed to train click-through rate prediction model", zap.Error(err))
+	// }
+	if err = safeTrainClickThroughRatePrediction(m, m.clickTrainSet, m.clickTestSet); err != nil {
+    log.Logger().Error("failed to train click-through rate prediction model", zap.Error(err))
+}
 	if err = m.collectGarbage(ctx, dataSet); err != nil {
 		log.Logger().Error("failed to collect garbage in cache", zap.Error(err))
 	}
@@ -976,6 +979,19 @@ func (m *Master) trainCollaborativeFiltering(trainSet, testSet dataset.CFSplit) 
 			zap.Any("collaborative_filtering_model_params", m.localCache.CollaborativeFilteringModel.GetParams()))
 	}
 	return nil
+}
+
+func safeTrainClickThroughRatePrediction(m *Master, trainSet, testSet *ctr.Dataset) (err error) {
+    defer func() {
+        if r := recover(); r != nil {
+            // 捕获 panic，打印详细信息
+            fmt.Printf("trainClickThroughRatePrediction panic: %v\n%s\n", r, debug.Stack())
+            // 也可以将 panic 转换为 error 返回
+            err = fmt.Errorf("panic: %v", r)
+        }
+    }()
+    // 调用原函数
+    return m.trainClickThroughRatePrediction(trainSet, testSet)
 }
 
 func (m *Master) trainClickThroughRatePrediction(trainSet, testSet *ctr.Dataset) error {
