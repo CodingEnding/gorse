@@ -17,7 +17,6 @@ package master
 import (
 	"context"
 	"fmt"
-	"runtime/debug"
 	"sort"
 	"strings"
 	"sync"
@@ -220,9 +219,6 @@ func (m *Master) runLoadDatasetTask() error {
 	if err = m.trainClickThroughRatePrediction(m.clickTrainSet, m.clickTestSet); err != nil {
 		log.Logger().Error("failed to train click-through rate prediction model", zap.Error(err))
 	}
-	// if err = safeTrainClickThroughRatePrediction(m, m.clickTrainSet, m.clickTestSet); err != nil {
-  //   log.Logger().Error("failed to train click-through rate prediction model", zap.Error(err))
-	// }
 	if err = m.collectGarbage(ctx, dataSet); err != nil {
 		log.Logger().Error("failed to collect garbage in cache", zap.Error(err))
 	}
@@ -982,24 +978,11 @@ func (m *Master) trainCollaborativeFiltering(trainSet, testSet dataset.CFSplit) 
 	return nil
 }
 
-// func safeTrainClickThroughRatePrediction(m *Master, trainSet, testSet *ctr.Dataset) (err error) {
-//     defer func() {
-//         if r := recover(); r != nil {
-//             // 捕获 panic，打印详细信息
-//             fmt.Printf("trainClickThroughRatePrediction panic: %v\n%s\n", r, debug.Stack())
-//             // 也可以将 panic 转换为 error 返回
-//             err = fmt.Errorf("panic: %v", r)
-//         }
-//     }()
-//     // 调用原函数
-//     return m.trainClickThroughRatePrediction(trainSet, testSet)
-// }
-
 func (m *Master) trainClickThroughRatePrediction(trainSet, testSet *ctr.Dataset) error {
 	newCtx, span := m.tracer.Start(context.Background(), "Train Click-Through Rate Prediction Model", 1)
 	defer span.End()
 
-		log.Logger().Info("trainClickThroughRatePrediction 1")
+	log.Logger().Info("trainClickThroughRatePrediction 1")
 
 	if trainSet.CountUsers() == 0 {
 		span.Fail(errors.New("No user found."))
@@ -1074,7 +1057,7 @@ func (m *Master) trainClickThroughRatePrediction(trainSet, testSet *ctr.Dataset)
 
 	log.Logger().Info("fit click model complete",
 		zap.String("version", fmt.Sprintf("%x", m.ClickModelVersion)))
-		
+
 	RankingPrecision.Set(float64(score.Precision))
 	RankingRecall.Set(float64(score.Recall))
 	RankingAUC.Set(float64(score.AUC))

@@ -27,6 +27,7 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/juju/errors"
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/samber/lo"
 	"github.com/zhenghaoz/gorse/base"
 	"github.com/zhenghaoz/gorse/base/copier"
@@ -40,6 +41,30 @@ import (
 	"github.com/zhenghaoz/gorse/protocol"
 	"go.uber.org/zap"
 )
+
+var (
+	UnknownUserTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "gorse_unknown_user_total",
+			Help: "Total number of unknown users in matrix factorization predict.",
+		})
+	UnknownItemTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "gorse_unknown_item_total",
+			Help: "Total number of unknown items in matrix factorization predict.",
+		})
+	UnknowUserOrItemTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "gorse_unknown_item_or_user_total",
+			Help: "Total number of unknown items or user in internalPredict.",
+		})
+)
+
+func init() {
+	prometheus.MustRegister(UnknownUserTotal)
+	prometheus.MustRegister(UnknownItemTotal)
+	prometheus.MustRegister(UnknowUserOrItemTotal)
+}
 
 type Score struct {
 	NDCG      float32
@@ -177,12 +202,17 @@ func (baseModel *BaseMatrixFactorization) Predict(userId, itemId string) float32
 	// Convert sparse Names to dense Names
 	userIndex := baseModel.UserIndex.Id(userId)
 	itemIndex := baseModel.ItemIndex.Id(itemId)
+
+	// 生产环境中会触发大量的异常日志, 因此目前改为仅记录数量, 不再输出日志
 	if userIndex < 0 {
+		UnknownUserTotal.Inc()
 		log.Logger().Warn("unknown user", zap.String("user_id", userId))
 	}
 	if itemIndex < 0 {
+		UnknownItemTotal.Inc()
 		log.Logger().Warn("unknown item", zap.String("item_id", itemId))
 	}
+
 	return baseModel.internalPredict(userIndex, itemIndex)
 }
 
@@ -191,7 +221,9 @@ func (baseModel *BaseMatrixFactorization) internalPredict(userIndex, itemIndex i
 	if itemIndex >= 0 && userIndex >= 0 {
 		ret = floats.Dot(baseModel.UserFactor[userIndex], baseModel.ItemFactor[itemIndex])
 	} else {
-		log.Logger().Warn("unknown user or item")
+		// 生产环境中会触发大量的异常日志, 因此目前改为仅记录数量, 不再输出日志
+		UnknowUserOrItemTotal.Inc()
+		// log.Logger().Warn("unknown user or item")
 	}
 	return ret
 }
