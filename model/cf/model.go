@@ -206,11 +206,11 @@ func (baseModel *BaseMatrixFactorization) Predict(userId, itemId string) float32
 	// 生产环境中会触发大量的异常日志, 因此目前改为仅记录数量, 不再输出日志
 	if userIndex < 0 {
 		UnknownUserTotal.Inc()
-		log.Logger().Warn("unknown user", zap.String("user_id", userId))
+		// log.Logger().Warn("unknown user", zap.String("user_id", userId))
 	}
 	if itemIndex < 0 {
 		UnknownItemTotal.Inc()
-		log.Logger().Warn("unknown item", zap.String("item_id", itemId))
+		// log.Logger().Warn("unknown item", zap.String("item_id", itemId))
 	}
 
 	return baseModel.internalPredict(userIndex, itemIndex)
