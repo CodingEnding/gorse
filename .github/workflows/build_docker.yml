@@ -32,7 +32,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: cmd/${{ matrix.image }}/Dockerfile
           push: true
-          tags: codingending/${{ matrix.image }}:test.2
+          tags: codingending/${{ matrix.image }}:test.3
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
